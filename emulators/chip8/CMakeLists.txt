@@ -35,6 +35,8 @@ add_executable(Chip8Emulator
     ${SRC_DIR}/startup.cpp
     ${SRC_DIR}/display.cpp
     ${SRC_DIR}/chip8.cpp
+    ${SRC_DIR}/opcode.cpp
+    ${SRC_DIR}/rom.cpp
 )
 
 target_include_directories(Chip8Emulator PRIVATE

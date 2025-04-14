@@ -2,6 +2,7 @@
 #define CHIP_8_H
 
 #include <array>
+#include <fstream>
 #include "display.h"
 #include "opcode.h"
 
@@ -61,7 +62,7 @@ class Chip8 {
             std::copy(byteData, byteData + size, memory + offset);
 
             return 0;
-        }
+        };
 
         // Is this the best format for default variables?
         void printMemory(size_t offset = 0, size_t size = CHIP_8_MEM_SIZE) const {
@@ -74,8 +75,15 @@ class Chip8 {
                 offset++;
             }
 
+            printf("\n");   // Makes output clearer
+
             return;
-        }
+        };
+
+        void printDebug(void) {
+            printf("PC: %04X    SP: %02X    I: %04X\n", PC, SP, I);
+            return;
+        };
 
         // Using -1 as error detection. Should be good since we only go up to 0xFFF
         const short getMachineCode(unsigned short addr) const {
@@ -89,7 +97,7 @@ class Chip8 {
             
             PC = addr;
             return 0;
-        }
+        };
 
         char addProgramCounter(unsigned short value) {
             if((PC + value) >= 0xFFF)
@@ -97,11 +105,11 @@ class Chip8 {
 
             PC += value;
             return 0;
-        }
+        };
 
         const char getRegisterValue(unsigned char registerNumber) const {
             return (REGISTER_BOUNDARY_DETECT(registerNumber) ? v[registerNumber] : -1);
-        }
+        };
 
         char setRegisterValue(unsigned char registerNumber, unsigned char value) {
             if(!REGISTER_BOUNDARY_DETECT(registerNumber))
@@ -109,18 +117,18 @@ class Chip8 {
 
             v[registerNumber] = value;
             return 0;
-        }
+        };
 
         char setI(unsigned char value) {
             // TODO: Include boundary checking
             I = value;
 
             return 0;
-        }
+        };
 
         const pixels::PixelBuffer& getPixels() const {
             return pixels;
-        }
+        };
         
         // Using friend so opcodes can access memory/stack/regis
         friend class Opcodes;
