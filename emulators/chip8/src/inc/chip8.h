@@ -81,6 +81,7 @@ class Chip8 {
         };
 
         void printDebug(void) {
+            printf("Last used opcode: %02X%02X", memory[PC], memory[PC+1]);
             printf("PC: %04X    SP: %02X    I: %04X\n", PC, SP, I);
             return;
         };
@@ -139,7 +140,7 @@ class Chip8 {
         unsigned char v[REGISTER_COUNT];
         unsigned short stack[STACK_SIZE];
 
-        unsigned short PC {};
+        unsigned short PC {ROM_MEM_START}; // Have PC start on ROM
         unsigned char SP {};
         unsigned short I {};
 

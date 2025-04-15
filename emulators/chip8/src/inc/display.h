@@ -7,9 +7,6 @@
 
 #define SDL_ERROR_COUT(message) std::cout << message << " Error: " << SDL_GetError() << std::endl
 
-#define SCREEN_WIDTH    64
-#define SCREEN_HEIGHT   32
-
 namespace pixels {
     constexpr int DISPLAY_WIDTH = 64;
     constexpr int DISPLAY_HEIGHT = 32;
@@ -34,7 +31,8 @@ class Display {
             }
 
             emulatorWindow = SDL_CreateWindow("Chipacabra", SDL_WINDOWPOS_UNDEFINED, 
-                                                SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+                                                SDL_WINDOWPOS_UNDEFINED, pixels::DISPLAY_WIDTH, 
+                                                pixels::DISPLAY_HEIGHT, SDL_WINDOW_SHOWN);
             if(emulatorWindow == NULL) {
                 SDL_ERROR_COUT("Window could not be created!");
             }
@@ -45,7 +43,8 @@ class Display {
             }
 
             emulatorTexture = SDL_CreateTexture(emulatorRenderer, SDL_PIXELFORMAT_ABGR8888,
-                                                SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+                                                SDL_TEXTUREACCESS_STREAMING,
+                                                pixels::DISPLAY_WIDTH, pixels::DISPLAY_HEIGHT);
             if(emulatorTexture == NULL) {
                 SDL_ERROR_COUT("Texture could not be created!");
             }
@@ -64,7 +63,7 @@ class Display {
         };
 
         void renderDisplay(const pixels::PixelBuffer& pixels) {
-            SDL_UpdateTexture(emulatorTexture, NULL, &pixels, SCREEN_WIDTH * sizeof(uint32_t));
+            SDL_UpdateTexture(emulatorTexture, NULL, &pixels, pixels::DISPLAY_WIDTH * sizeof(uint32_t));
             
             if (SDL_RenderClear(emulatorRenderer) != 0)
             {

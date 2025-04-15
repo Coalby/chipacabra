@@ -30,18 +30,11 @@ void Opcodes::opCallMchnCode(unsigned short opcode, Chip8& chip8) {
 
 // Clears the screen
 void Opcodes::opClearScreen(unsigned short opcode, Chip8& chip8) {
-    // TODO: index types could lead to incorrect values 
-    //       if preprocessor defines change beyond appropriate range
-    unsigned char width_index {};
-    unsigned char height_index {};
 
-    while(width_index < SCREEN_WIDTH) {
-        height_index = 0;
-        while(height_index < SCREEN_HEIGHT) {
-            chip8.pixels[width_index][height_index] = pixels::BLACK_PIXEL;
-            height_index++;
+    for (size_t height_index = 0; height_index < pixels::DISPLAY_HEIGHT; height_index++) {
+        for (size_t width_index = 0; width_index < pixels::DISPLAY_WIDTH; width_index++) {
+            chip8.pixels[height_index][width_index] = pixels::BLACK_PIXEL;
         }
-        width_index++;
     }
 
     return;
@@ -96,26 +89,39 @@ void Opcodes::opLoadI(unsigned short opcode, Chip8& chip8) {
 // Draws a sprite at (Vx,Vy) that is N pixels tall
 // TODO: Optimize this, it sucks lol
 void Opcodes::opDrawSprite(unsigned short opcode, Chip8& chip8) {
-    unsigned char x { static_cast<unsigned char>(chip8.getRegisterValue(opcode & 0x0F00) % 64) };
-    unsigned char y { static_cast<unsigned char>(chip8.getRegisterValue(opcode & 0x00F0) % 64) };
-    unsigned char xTmp { x };
+    // Extract X and Y coordinates from registers
+    unsigned char x { static_cast<unsigned char>(chip8.getRegisterValue((opcode & 0x0F00) >> 8) % pixels::DISPLAY_WIDTH) };
+    unsigned char y { static_cast<unsigned char>(chip8.getRegisterValue((opcode & 0x00F0) >> 4) % pixels::DISPLAY_HEIGHT) };
     unsigned char spriteHeight { static_cast<unsigned char>(opcode & 0xF) };
     unsigned short spriteAddr { chip8.I };
-    unsigned char spriteByte {};
+    
+    // Reset collision flag (VF)
+    chip8.setRegisterValue(0xF, 0);
+    
+    for (unsigned char row = y; row < spriteHeight; row++) {
+        if (row >= pixels::DISPLAY_HEIGHT) break; // Don't draw past screen
+        
+        unsigned char spriteByte = chip8.memory[spriteAddr + row];
+        
+        // Draw a byte at a time
+        for (unsigned char col = x; col < x + 8; col++) {
+            if (x + col >= pixels::DISPLAY_WIDTH) break; // Don't draw past right edge
+            
+            // Check if current pixel in sprite is set
+            bool pixelSet = (spriteByte & (0x80 >> col));
+            
+            if (pixelSet) {
+                // Get current screen pixel
+                unsigned int& screenPixel = chip8.pixels[row][col];
 
-    while(y != SCREEN_HEIGHT && spriteHeight) {
-        spriteByte = chip8.memory[spriteAddr];
-        x = xTmp;
-
-        // Each sprite is a byte (8 bits) long
-        while(x < SCREEN_WIDTH && x < (xTmp + 8)) {
-            chip8.pixels[y][x] = (spriteByte & (1 << (x - xTmp)));
-            x++;
+                // If pixel was set, then collision has occured (VF = 1)
+                if(screenPixel == pixels::WHITE_PIXEL)
+                    chip8.setRegisterValue(0xF, 1);
+                
+                // XOR with the screen
+                // TODO: Find a way to utilize bitwise ^= instead
+                screenPixel = (screenPixel == pixels::WHITE_PIXEL) ? pixels::BLACK_PIXEL : pixels::WHITE_PIXEL;
+            }
         }
-
-        spriteAddr++;
-        y++;
     }
-
-    return;
 }

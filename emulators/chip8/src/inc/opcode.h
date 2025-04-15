@@ -43,10 +43,10 @@ class Opcodes {
         static void opDrawSprite(unsigned short opcode, Chip8& chip8);
 
         // Constant at compile time since it won't change
-        constexpr static std::array<OpcodeMapping, 8> opcodeLookup {{
-            {0xF000, 0x0000, &Opcodes::opCallMchnCode},
-            {0xF00F, 0x00E0, &Opcodes::opClearScreen},
-            {0xF00F, 0x00EE, &Opcodes::opReturnFromSub},
+        constexpr static std::array<OpcodeMapping, 7> opcodeLookup {{
+            //{0xF000, 0x0000, &Opcodes::opCallMchnCode},
+            {0xF00F, 0x0000, &Opcodes::opClearScreen},
+            {0xF00F, 0x000E, &Opcodes::opReturnFromSub},
             {0xF000, 0x1000, &Opcodes::opJumpAddr},
             {0xF000, 0x6000, &Opcodes::opLoadVx},
             {0xF000, 0x7000, &Opcodes::opAddVx},
