@@ -16,6 +16,9 @@ message(STATUS "${PlatformColor}[INFO] Building for host platform...${ColourRese
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Debug Mode
+set(CMAKE_BUILD_TYPE Debug)
+
 # Output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 

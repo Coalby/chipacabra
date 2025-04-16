@@ -120,7 +120,7 @@ class Chip8 {
             return 0;
         };
 
-        char setI(unsigned char value) {
+        char setI(unsigned short value) {
             // TODO: Include boundary checking
             I = value;
 

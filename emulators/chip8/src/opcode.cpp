@@ -65,7 +65,7 @@ void Opcodes::opSEvxByte(unsigned short opcode, Chip8& chip8) {
 
 // Loads (opcode & 0xFF) into Vx
 void Opcodes::opLoadVx(unsigned short opcode, Chip8& chip8) {
-    chip8.setRegisterValue(opcode & 0xF00, opcode & 0xFF);
+    chip8.setRegisterValue((opcode & 0xF00) >> 8, opcode & 0xFF);
     
     return;
 }
@@ -98,22 +98,22 @@ void Opcodes::opDrawSprite(unsigned short opcode, Chip8& chip8) {
     // Reset collision flag (VF)
     chip8.setRegisterValue(0xF, 0);
     
-    for (unsigned char row = y; row < spriteHeight; row++) {
-        if (row >= pixels::DISPLAY_HEIGHT) break; // Don't draw past screen
+    for (unsigned char yOffset = 0; yOffset < spriteHeight; yOffset++) {
+        if (y + yOffset >= pixels::DISPLAY_HEIGHT) break; // Don't draw past screen
         
-        unsigned char spriteByte = chip8.memory[spriteAddr + row];
+        unsigned char spriteByte = chip8.memory[spriteAddr];
         
         // Draw a byte at a time
-        for (unsigned char col = x; col < x + 8; col++) {
-            if (x + col >= pixels::DISPLAY_WIDTH) break; // Don't draw past right edge
+        for (unsigned char xOffset = 0; xOffset < 8; xOffset++) {
+            if (x + xOffset >= pixels::DISPLAY_WIDTH) break; // Don't draw past right edge
             
-            // Check if current pixel in sprite is set
-            bool pixelSet = (spriteByte & (0x80 >> col));
-            
-            if (pixelSet) {
-                // Get current screen pixel
-                unsigned int& screenPixel = chip8.pixels[row][col];
+            unsigned int& screenPixel = chip8.pixels[y + yOffset][x + xOffset];
 
+            bool pixelSet = (spriteByte & (0x80 >> xOffset));
+
+            // Only mess with pixels that are 1 in the sprite
+            if(pixelSet)
+            {
                 // If pixel was set, then collision has occured (VF = 1)
                 if(screenPixel == pixels::WHITE_PIXEL)
                     chip8.setRegisterValue(0xF, 1);
@@ -123,5 +123,7 @@ void Opcodes::opDrawSprite(unsigned short opcode, Chip8& chip8) {
                 screenPixel = (screenPixel == pixels::WHITE_PIXEL) ? pixels::BLACK_PIXEL : pixels::WHITE_PIXEL;
             }
         }
+
+        spriteAddr++;
     }
 }
