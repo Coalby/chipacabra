@@ -48,6 +48,8 @@ class Display {
             if(emulatorTexture == NULL) {
                 SDL_ERROR_COUT("Texture could not be created!");
             }
+
+            SDL_SetWindowFullscreen(emulatorWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
         };
         ~Display() {
             SDL_DestroyTexture(emulatorTexture);

@@ -8,22 +8,12 @@ void Opcodes::executeOpcode(unsigned short opcode, Chip8& chip8) {
     // TODO: O(N) lookup -> Not efficient ; Hashmap implementation?
     for(const auto &entry : opcodeLookup) {
         if((opcode & entry.mask) == entry.opcode)
+        {
             entry.opcodeHandler(opcode, chip8);
+            if(entry.opcode != OP_JUMP_ADDR_MASK)
+                chip8.addProgramCounter(2);
+        }
     }
-
-    return;
-}
-
-// This opcode is kinda wack. Not sure how this would affect stack usage
-void Opcodes::opCallMchnCode(unsigned short opcode, Chip8& chip8) {
-    unsigned short addr {};
-    unsigned short nextOpcode {};
-    addr = (opcode & 0xFFF);
-    nextOpcode = chip8.getMachineCode(addr);
-
-    // TODO: Fix this being called as a public function
-    //       Could result in corrupt data?
-    executeOpcode(nextOpcode, chip8);
 
     return;
 }
@@ -45,6 +35,20 @@ void Opcodes::opReturnFromSub(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
+// This opcode is kinda wack. Not sure how this would affect stack usage
+void Opcodes::opCallMchnCode(unsigned short opcode, Chip8& chip8) {
+    unsigned short addr {};
+    unsigned short nextOpcode {};
+    addr = (opcode & 0xFFF);
+    nextOpcode = chip8.getMachineCode(addr);
+
+    // TODO: Fix this being called as a public function
+    //       Could result in corrupt data?
+    executeOpcode(nextOpcode, chip8);
+
+    return;
+}
+
 // Jumps to address
 void Opcodes::opJumpAddr(unsigned short opcode, Chip8& chip8) {
     chip8.setProgramCounter(opcode & 0xFFF);
@@ -57,9 +61,18 @@ void Opcodes::opCallSub(unsigned short opcode, Chip8& chip8) {
 }
 
 // Skips next instruction if Vx == (opcode & 0xFF)
-void Opcodes::opSEvxByte(unsigned short opcode, Chip8& chip8) {
+void opSEVx(unsigned short opcode, Chip8&) {
     if(chip8.getRegisterValue(opcode & 0x0F00) == (opcode && 0xFF))
         chip8.addProgramCounter(2);
+    
+    return;
+}
+
+void opSNEVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opSEVxVy(unsigned short opcode, Chip8&) {
     return;
 }
 
@@ -80,9 +93,57 @@ void Opcodes::opAddVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
+void opLoadVxVy(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadORVxVy(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadANDVxVy(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadXORVxVy(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadADDVxVy(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadSUBVxVy(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadShiftRightVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadVxEquVyMinusVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadShiftLeftVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opSNEVxVy(unsigned short opcode, Chip8&) {
+    return;
+}
+
 // Loads (opcode & 0xFFF) to I
 void Opcodes::opLoadI(unsigned short opcode, Chip8& chip8) {
     chip8.setI(opcode & 0xFFF);
+    return;
+}
+
+void opJumpAddrV0(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadVxRand(unsigned short opcode, Chip8&) {
     return;
 }
 
@@ -126,4 +187,48 @@ void Opcodes::opDrawSprite(unsigned short opcode, Chip8& chip8) {
 
         spriteAddr++;
     }
+}
+
+void opSEKey(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opSNEKey(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadVxDelay(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadVxKey(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadDelayToVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadSoundToVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadIVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadISpriteAddr(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadBCDVx(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opStoreAllRegisterValues(unsigned short opcode, Chip8&) {
+    return;
+}
+
+void opLoadAllRegisterValues(unsigned short opcode, Chip8&) {
+    return;
 }

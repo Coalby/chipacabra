@@ -15,8 +15,8 @@
 #define STACK_SIZE          12
 
 // TODO: Replace with constexpr?
-#define ADDR_BOUNDARY_DETECT(addr)          (addr > 0 || addr < 0x1000)
-#define REGISTER_BOUNDARY_DETECT(register)  (register > 0 || register < 0x10)
+#define ADDR_BOUNDARY_DETECT(addr)          (addr > 0 || addr < CHIP_8_MEM_SIZE)
+#define REGISTER_BOUNDARY_DETECT(register)  (register > 0 || register < STACK_SIZE)
 #define MEMORY_SIZE_DETECT(size)            (size < 0 || size > ROM_MEM_SIZE)
 
 const unsigned char FontSet[] {
@@ -49,7 +49,6 @@ class Chip8 {
         void readNextInstruction() {
             // Did not use PC++ on both to ease future development
             opcodes.executeOpcode(GET_OPCODE(memory[PC], memory[PC+1]), *this);
-            PC += 2;
         };
 
         // Are C-style arrays the best choice here? 
@@ -81,7 +80,7 @@ class Chip8 {
         };
 
         void printDebug(void) {
-            printf("Last used opcode: %02X%02X", memory[PC], memory[PC+1]);
+            printf("Last used opcode: %02X%02X ", memory[PC], memory[PC+1]);
             printf("PC: %04X    SP: %02X    I: %04X\n", PC, SP, I);
             return;
         };
