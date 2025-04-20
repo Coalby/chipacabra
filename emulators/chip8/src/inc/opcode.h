@@ -70,60 +70,53 @@ class Opcodes {
 
         // Opcode handlers (there's a lot)
         // TODO: Should this functionality be moved to the implementation file outside of a class?
-        static void opClearScreen(unsigned short opcode, Chip8&);
-        static void opReturnFromSub(unsigned short opcode, Chip8&);
+        static void opClearScreen(unsigned short opcode, Chip8& chip8);
+        static void opReturnFromSub(unsigned short opcode, Chip8& chip8);
         static void opCallMchnCode(unsigned short opcode, Chip8& chip8);
-        static void opJumpAddr(unsigned short opcode, Chip8&);
-        static void opCallSub(unsigned short opcode, Chip8&);
-
-        static void opSEVx(unsigned short opcode, Chip8&);
-        static void opSNEVx(unsigned short opcode, Chip8&);
-        static void opSEVxVy(unsigned short opcode, Chip8&);
-
+        static void opJumpAddr(unsigned short opcode, Chip8& chip8);
+        static void opCallSub(unsigned short opcode, Chip8& chip8);
+        static void opSEVx(unsigned short opcode, Chip8& chip8);
+        static void opSNEVx(unsigned short opcode, Chip8& chip8);
+        static void opSEVxVy(unsigned short opcode, Chip8& chip8);
         static void opLoadVx(unsigned short opcode, Chip8& chip8);
         static void opAddVx(unsigned short opcode, Chip8& chip8);
-
-        static void opLoadVxVy(unsigned short opcode, Chip8&);
-        static void opLoadORVxVy(unsigned short opcode, Chip8&);
-        static void opLoadANDVxVy(unsigned short opcode, Chip8&);
-        static void opLoadXORVxVy(unsigned short opcode, Chip8&);
-        static void opLoadADDVxVy(unsigned short opcode, Chip8&);
-        static void opLoadSUBVxVy(unsigned short opcode, Chip8&);
-        static void opLoadShiftRightVx(unsigned short opcode, Chip8&);
-        static void opLoadVxEquVyMinusVx(unsigned short opcode, Chip8&);
-        static void opLoadShiftLeftVx(unsigned short opcode, Chip8&);
-        static void opSNEVxVy(unsigned short opcode, Chip8&);
-
+        static void opLoadVxVy(unsigned short opcode, Chip8& chip8);
+        static void opLoadORVxVy(unsigned short opcode, Chip8& chip8);
+        static void opLoadANDVxVy(unsigned short opcode, Chip8& chip8);
+        static void opLoadXORVxVy(unsigned short opcode, Chip8& chip8);
+        static void opLoadADDVxVy(unsigned short opcode, Chip8& chip8);
+        static void opLoadSUBVxVy(unsigned short opcode, Chip8& chip8);
+        static void opLoadShiftRightVx(unsigned short opcode, Chip8& chip8);
+        static void opLoadVxEquVyMinusVx(unsigned short opcode, Chip8& chip8);
+        static void opLoadShiftLeftVx(unsigned short opcode, Chip8& chip8);
+        static void opSNEVxVy(unsigned short opcode, Chip8& chip8);
         static void opLoadI(unsigned short opcode, Chip8& chip8);
-
-        static void opJumpAddrV0(unsigned short opcode, Chip8&);
-        static void opLoadVxRand(unsigned short opcode, Chip8&);
-
+        static void opJumpAddrV0(unsigned short opcode, Chip8& chip8);
+        static void opLoadVxRand(unsigned short opcode, Chip8& chip8);
         static void opDrawSprite(unsigned short opcode, Chip8& chip8);
-
-        static void opSEKey(unsigned short opcode, Chip8&);
-        static void opSNEKey(unsigned short opcode, Chip8&);
-        static void opLoadVxDelay(unsigned short opcode, Chip8&);
-        static void opLoadVxKey(unsigned short opcode, Chip8&);
-        static void opLoadDelayToVx(unsigned short opcode, Chip8&);
-        static void opLoadSoundToVx(unsigned short opcode, Chip8&);
-        static void opLoadIVx(unsigned short opcode, Chip8&);
-        static void opLoadISpriteAddr(unsigned short opcode, Chip8&);
-        static void opLoadBCDVx(unsigned short opcode, Chip8&);
-        static void opStoreAllRegisterValues(unsigned short opcode, Chip8&);
-        static void opLoadAllRegisterValues(unsigned short opcode, Chip8&);
+        static void opSEKey(unsigned short opcode, Chip8& chip8);
+        static void opSNEKey(unsigned short opcode, Chip8& chip8);
+        static void opLoadVxDelay(unsigned short opcode, Chip8& chip8);
+        static void opLoadVxKey(unsigned short opcode, Chip8& chip8);
+        static void opLoadDelayToVx(unsigned short opcode, Chip8& chip8);
+        static void opLoadSoundToVx(unsigned short opcode, Chip8& chip8);
+        static void opLoadIVx(unsigned short opcode, Chip8& chip8);
+        static void opLoadISpriteAddr(unsigned short opcode, Chip8& chip8);
+        static void opLoadBCDVx(unsigned short opcode, Chip8& chip8);
+        static void opStoreAllRegisterValues(unsigned short opcode, Chip8& chip8);
+        static void opLoadAllRegisterValues(unsigned short opcode, Chip8& chip8);
 
         // Constant at compile time since it won't change
-        constexpr static std::array<OpcodeMapping, 35> opcodeLookup {{
+        constexpr static std::array<OpcodeMapping, 34> opcodeLookup {{
             {0xFFFF, OP_CLEAR_SCREEN_MASK, &Opcodes::opClearScreen},
             {0xFFFF, OP_RETURN_FROM_SUB_MASK, &Opcodes::opReturnFromSub},
-            {0xF000, OP_CALL_MCHN_CODE_MASK, &Opcodes::opCallMchnCode},
+            //{0xF000, OP_CALL_MCHN_CODE_MASK, &Opcodes::opCallMchnCode},
             {0xF000, OP_JUMP_ADDR_MASK, &Opcodes::opJumpAddr},
             {0xF000, OP_CALL_SUB_MASK, &Opcodes::opCallSub},
             {0xF000, OP_SE_VX_MASK, &Opcodes::opSEVx},
             {0xF000, OP_SNE_VX_MASK, &Opcodes::opSNEVx},
             {0xF000, OP_SE_VX_VY_MASK, &Opcodes::opSEVxVy},
-            {0xF000, OP_LOAD_VX_MASK &Opcodes::opLoadVx},
+            {0xF000, OP_LOAD_VX_MASK, &Opcodes::opLoadVx},
             {0xF000, OP_ADD_VX_MASK, &Opcodes::opAddVx},
             {0xF000, OP_LOAD_VX_VY_MASK, &Opcodes::opLoadVxVy},
             {0xF00F, OP_LOAD_OR_VX_VY_MASK, &Opcodes::opLoadORVxVy},

@@ -14,6 +14,9 @@
 #define REGISTER_COUNT      0x10
 #define STACK_SIZE          12
 
+#define OVERFLOW_OCCURED        0x01
+#define OVERFLOW_DID_NOT_OCCUR  0x00
+
 // TODO: Replace with constexpr?
 #define ADDR_BOUNDARY_DETECT(addr)          (addr > 0 || addr < CHIP_8_MEM_SIZE)
 #define REGISTER_BOUNDARY_DETECT(register)  (register > 0 || register < STACK_SIZE)
@@ -118,6 +121,15 @@ class Chip8 {
             v[registerNumber] = value;
             return 0;
         };
+
+        char setOverflowRegister(unsigned char overflow) {
+            if(overflow != OVERFLOW_OCCURED || overflow != OVERFLOW_DID_NOT_OCCUR)
+                return 0;
+
+            v[REGISTER_COUNT-1] = overflow;
+
+            return 1;
+        }
 
         char setI(unsigned short value) {
             // TODO: Include boundary checking

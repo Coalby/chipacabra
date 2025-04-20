@@ -60,23 +60,29 @@ void Opcodes::opCallSub(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-// Skips next instruction if Vx == (opcode & 0xFF)
-void opSEVx(unsigned short opcode, Chip8&) {
-    if(chip8.getRegisterValue(opcode & 0x0F00) == (opcode && 0xFF))
+// Skips next instruction if Vx == NN
+void Opcodes::opSEVx(unsigned short opcode, Chip8& chip8) {
+    if(chip8.getRegisterValue(opcode & 0x0F00 >> 8) == (opcode && 0xFF))
         chip8.addProgramCounter(2);
     
     return;
 }
 
-void opSNEVx(unsigned short opcode, Chip8&) {
+// Skips next instruction if Vx != NN
+void Opcodes::opSNEVx(unsigned short opcode, Chip8& chip8) {
+    if(chip8.getRegisterValue(opcode & 0x0F00 >> 8) != (opcode && 0xFF))
+        chip8.addProgramCounter(2);
     return;
 }
 
-void opSEVxVy(unsigned short opcode, Chip8&) {
+// Skips next instruction if Vx == Vy
+void Opcodes::opSEVxVy(unsigned short opcode, Chip8& chip8) {
+    if(chip8.getRegisterValue(opcode & 0x0F00 >> 8) == chip8.getRegisterValue(opcode && 0xF0))
+        chip8.addProgramCounter(2);
     return;
 }
 
-// Loads (opcode & 0xFF) into Vx
+// Loads NN into Vx
 void Opcodes::opLoadVx(unsigned short opcode, Chip8& chip8) {
     chip8.setRegisterValue((opcode & 0xF00) >> 8, opcode & 0xFF);
     
@@ -93,43 +99,62 @@ void Opcodes::opAddVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadVxVy(unsigned short opcode, Chip8&) {
+// Loads Vx to Vy
+void Opcodes::opLoadVxVy(unsigned short opcode, Chip8& chip8) {
+    chip8.setRegisterValue((opcode & 0xF00) >> 8, chip8.getRegisterValue((opcode & 0xF0) >> 4));
     return;
 }
 
-void opLoadORVxVy(unsigned short opcode, Chip8&) {
+// Loads Vx to Vx |= Vy
+void Opcodes::opLoadORVxVy(unsigned short opcode, Chip8& chip8) {
+    chip8.setRegisterValue((opcode & 0xF00) >> 8, 
+                            chip8.getRegisterValue((opcode & 0xF00) >> 8) | chip8.getRegisterValue((opcode & 0xF0) >> 4));
     return;
 }
 
-void opLoadANDVxVy(unsigned short opcode, Chip8&) {
+// Loads Vx to Vx &= Vy
+void Opcodes::opLoadANDVxVy(unsigned short opcode, Chip8& chip8) {
+    chip8.setRegisterValue((opcode & 0xF00) >> 8, 
+                            chip8.getRegisterValue((opcode & 0xF00) >> 8) & chip8.getRegisterValue((opcode & 0xF0) >> 4));
     return;
 }
 
-void opLoadXORVxVy(unsigned short opcode, Chip8&) {
+// Loads Vx to Vx ^= Vy
+void Opcodes::opLoadXORVxVy(unsigned short opcode, Chip8&chip8) {
+    chip8.setRegisterValue((opcode & 0xF00) >> 8, 
+                            chip8.getRegisterValue((opcode & 0xF00) >> 8) ^ chip8.getRegisterValue((opcode & 0xF0) >> 4));
     return;
 }
 
-void opLoadADDVxVy(unsigned short opcode, Chip8&) {
+// Loads Vx to Vx += Vy. Vf = 1 if an overflow is detected
+// TODO: Ignore addition when overflow? or not?
+void Opcodes::opLoadADDVxVy(unsigned short opcode, Chip8& chip8) {
+    // Not the most memory efficient if using continually on embedded system
+    size_t registerValue = chip8.getRegisterValue((opcode & 0xF00) >> 8) + chip8.getRegisterValue((opcode & 0xF0) >> 4);
+    
+    (registerValue > 255) ? chip8.setOverflowRegister(OVERFLOW_OCCURED) : chip8.setOverflowRegister(OVERFLOW_DID_NOT_OCCUR);
+    chip8.setRegisterValue((opcode & 0xF00) >> 8, registerValue);
+    
     return;
 }
 
-void opLoadSUBVxVy(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadSUBVxVy(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadShiftRightVx(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadShiftRightVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadVxEquVyMinusVx(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadVxEquVyMinusVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadShiftLeftVx(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadShiftLeftVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opSNEVxVy(unsigned short opcode, Chip8&) {
+void Opcodes::opSNEVxVy(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
@@ -139,11 +164,11 @@ void Opcodes::opLoadI(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opJumpAddrV0(unsigned short opcode, Chip8&) {
+void Opcodes::opJumpAddrV0(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadVxRand(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadVxRand(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
@@ -189,46 +214,46 @@ void Opcodes::opDrawSprite(unsigned short opcode, Chip8& chip8) {
     }
 }
 
-void opSEKey(unsigned short opcode, Chip8&) {
+void Opcodes::opSEKey(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opSNEKey(unsigned short opcode, Chip8&) {
+void Opcodes::opSNEKey(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadVxDelay(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadVxDelay(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadVxKey(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadVxKey(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadDelayToVx(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadDelayToVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadSoundToVx(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadSoundToVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadIVx(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadIVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadISpriteAddr(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadISpriteAddr(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadBCDVx(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadBCDVx(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opStoreAllRegisterValues(unsigned short opcode, Chip8&) {
+void Opcodes::opStoreAllRegisterValues(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
-void opLoadAllRegisterValues(unsigned short opcode, Chip8&) {
+void Opcodes::opLoadAllRegisterValues(unsigned short opcode, Chip8& chip8) {
     return;
 }
