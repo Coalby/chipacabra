@@ -28,7 +28,7 @@
 #define OP_LOAD_ADD_VX_VY_MASK              0x8004
 #define OP_LOAD_SUB_VX_VY_MASK              0x8005
 #define OP_LOAD_SHIFT_RIGHT_VX_MASK         0x8006
-#define OP_LOAD_VX_EQU_VY_MINUS_VX_MASK     0x8007
+#define OP_LOAD_SUB_VY_VX_MASK              0x8007
 #define OP_LOAD_SHIFT_LEFT_VX_MASK          0x800E
 #define OP_SNE_VX_VY_MASK                   0x9000
 #define OP_LOAD_I_MASK                      0xA000
@@ -87,7 +87,7 @@ class Opcodes {
         static void opLoadADDVxVy(unsigned short opcode, Chip8& chip8);
         static void opLoadSUBVxVy(unsigned short opcode, Chip8& chip8);
         static void opLoadShiftRightVx(unsigned short opcode, Chip8& chip8);
-        static void opLoadVxEquVyMinusVx(unsigned short opcode, Chip8& chip8);
+        static void opLoadSUBVyVx(unsigned short opcode, Chip8& chip8);
         static void opLoadShiftLeftVx(unsigned short opcode, Chip8& chip8);
         static void opSNEVxVy(unsigned short opcode, Chip8& chip8);
         static void opLoadI(unsigned short opcode, Chip8& chip8);
@@ -118,14 +118,14 @@ class Opcodes {
             {0xF000, OP_SE_VX_VY_MASK, &Opcodes::opSEVxVy},
             {0xF000, OP_LOAD_VX_MASK, &Opcodes::opLoadVx},
             {0xF000, OP_ADD_VX_MASK, &Opcodes::opAddVx},
-            {0xF000, OP_LOAD_VX_VY_MASK, &Opcodes::opLoadVxVy},
+            {0xF00F, OP_LOAD_VX_VY_MASK, &Opcodes::opLoadVxVy},
             {0xF00F, OP_LOAD_OR_VX_VY_MASK, &Opcodes::opLoadORVxVy},
             {0xF00F, OP_LOAD_AND_VX_VY_MASK, &Opcodes::opLoadANDVxVy},
             {0xF00F, OP_LOAD_XOR_VX_VY_MASK, &Opcodes::opLoadXORVxVy},
             {0xF00F, OP_LOAD_ADD_VX_VY_MASK, &Opcodes::opLoadADDVxVy},
             {0xF00F, OP_LOAD_SUB_VX_VY_MASK, &Opcodes::opLoadSUBVxVy},
             {0xF00F, OP_LOAD_SHIFT_RIGHT_VX_MASK, &Opcodes::opLoadShiftRightVx},
-            {0xF00F, OP_LOAD_VX_EQU_VY_MINUS_VX_MASK, &Opcodes::opLoadVxEquVyMinusVx},
+            {0xF00F, OP_LOAD_SUB_VY_VX_MASK, &Opcodes::opLoadSUBVyVx},
             {0xF00F, OP_LOAD_SHIFT_LEFT_VX_MASK, &Opcodes::opLoadShiftLeftVx},
             {0xF000, OP_SNE_VX_VY_MASK, &Opcodes::opSNEVxVy},
             {0xF000, OP_LOAD_I_MASK, &Opcodes::opLoadI},

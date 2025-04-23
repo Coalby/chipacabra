@@ -17,10 +17,13 @@
 #define OVERFLOW_OCCURED        0x01
 #define OVERFLOW_DID_NOT_OCCUR  0x00
 
+#define UNDERFLOW_OCCURED       0x00
+#define UNDERFLOW_DID_NOT_OCCUR 0x01
+
 // TODO: Replace with constexpr?
-#define ADDR_BOUNDARY_DETECT(addr)          (addr > 0 || addr < CHIP_8_MEM_SIZE)
-#define REGISTER_BOUNDARY_DETECT(register)  (register > 0 || register < STACK_SIZE)
-#define MEMORY_SIZE_DETECT(size)            (size < 0 || size > ROM_MEM_SIZE)
+#define ADDR_BOUNDARY_DETECT(addr)          (addr >= 0 && addr < CHIP_8_MEM_SIZE)
+#define REGISTER_BOUNDARY_DETECT(register)  (register >= 0 && register < REGISTER_COUNT)
+#define MEMORY_SIZE_DETECT(size)            (size <= 0 && size > ROM_MEM_SIZE)
 
 const unsigned char FontSet[] {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -123,7 +126,7 @@ class Chip8 {
         };
 
         char setOverflowRegister(unsigned char overflow) {
-            if(overflow != OVERFLOW_OCCURED || overflow != OVERFLOW_DID_NOT_OCCUR)
+            if(overflow != OVERFLOW_OCCURED && overflow != OVERFLOW_DID_NOT_OCCUR)
                 return 0;
 
             v[REGISTER_COUNT-1] = overflow;

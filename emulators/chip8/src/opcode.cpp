@@ -1,6 +1,9 @@
 #include "opcode.h"
 #include "chip8.h"
 
+#define GET_VX_FROM_OP(opcode)      ((opcode & 0xF00) >> 8)
+#define GET_VY_FROM_OP(opcode)      ((opcode & 0x00F0) >> 4)
+
 // Opcode class functionality
 
 // Executes the opcodes
@@ -10,8 +13,13 @@ void Opcodes::executeOpcode(unsigned short opcode, Chip8& chip8) {
         if((opcode & entry.mask) == entry.opcode)
         {
             entry.opcodeHandler(opcode, chip8);
-            if(entry.opcode != OP_JUMP_ADDR_MASK)
+            // TODO: Find better way to check edge cases. This looks ugly lol. 
+            //       Also sucks for readability
+            if(entry.opcode != OP_JUMP_ADDR_MASK && entry.opcode != OP_CALL_SUB_MASK
+                && entry.opcode != OP_RETURN_FROM_SUB_MASK)
                 chip8.addProgramCounter(2);
+
+            break;
         }
     }
 
@@ -32,6 +40,9 @@ void Opcodes::opClearScreen(unsigned short opcode, Chip8& chip8) {
 
 // Returns from subroutine
 void Opcodes::opReturnFromSub(unsigned short opcode, Chip8& chip8) {
+    chip8.setProgramCounter(chip8.stack[chip8.SP-1]);
+    chip8.SP--;
+
     return;
 }
 
@@ -52,17 +63,22 @@ void Opcodes::opCallMchnCode(unsigned short opcode, Chip8& chip8) {
 // Jumps to address
 void Opcodes::opJumpAddr(unsigned short opcode, Chip8& chip8) {
     chip8.setProgramCounter(opcode & 0xFFF);
+
     return;
 }
 
 // Calls subroutine
 void Opcodes::opCallSub(unsigned short opcode, Chip8& chip8) {
+    chip8.stack[chip8.SP] = chip8.PC + 2;
+    chip8.SP++;
+    chip8.setProgramCounter(opcode & 0xFFF);
+
     return;
 }
 
 // Skips next instruction if Vx == NN
 void Opcodes::opSEVx(unsigned short opcode, Chip8& chip8) {
-    if(chip8.getRegisterValue(opcode & 0x0F00 >> 8) == (opcode && 0xFF))
+    if(chip8.getRegisterValue((opcode & 0x0F00) >> 8) == (opcode & 0xFF))
         chip8.addProgramCounter(2);
     
     return;
@@ -70,21 +86,23 @@ void Opcodes::opSEVx(unsigned short opcode, Chip8& chip8) {
 
 // Skips next instruction if Vx != NN
 void Opcodes::opSNEVx(unsigned short opcode, Chip8& chip8) {
-    if(chip8.getRegisterValue(opcode & 0x0F00 >> 8) != (opcode && 0xFF))
+    if(chip8.getRegisterValue((opcode & 0x0F00) >> 8) != (opcode & 0xFF))
         chip8.addProgramCounter(2);
+
     return;
 }
 
 // Skips next instruction if Vx == Vy
 void Opcodes::opSEVxVy(unsigned short opcode, Chip8& chip8) {
-    if(chip8.getRegisterValue(opcode & 0x0F00 >> 8) == chip8.getRegisterValue(opcode && 0xF0))
+    if(chip8.getRegisterValue((opcode & 0x0F00) >> 8) == chip8.getRegisterValue(GET_VY_FROM_OP(opcode)))
         chip8.addProgramCounter(2);
+
     return;
 }
 
 // Loads NN into Vx
 void Opcodes::opLoadVx(unsigned short opcode, Chip8& chip8) {
-    chip8.setRegisterValue((opcode & 0xF00) >> 8, opcode & 0xFF);
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), opcode & 0xFF);
     
     return;
 }
@@ -92,8 +110,8 @@ void Opcodes::opLoadVx(unsigned short opcode, Chip8& chip8) {
 // Adds (opcodoe & 0xFF) to Vx
 void Opcodes::opAddVx(unsigned short opcode, Chip8& chip8) {
     // Consider removing this char for optimization
-    // Decreases readability but will increase speed marginally
-    unsigned char registerNumber { static_cast<unsigned char>((opcode & 0xF00) >> 8) };
+    // Decreases readability but will marginally increase speed
+    unsigned char registerNumber { static_cast<unsigned char>(GET_VX_FROM_OP(opcode)) };
     chip8.setRegisterValue(registerNumber, chip8.getRegisterValue(registerNumber) + (opcode & 0xFF));
     
     return;
@@ -101,60 +119,103 @@ void Opcodes::opAddVx(unsigned short opcode, Chip8& chip8) {
 
 // Loads Vx to Vy
 void Opcodes::opLoadVxVy(unsigned short opcode, Chip8& chip8) {
-    chip8.setRegisterValue((opcode & 0xF00) >> 8, chip8.getRegisterValue((opcode & 0xF0) >> 4));
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), chip8.getRegisterValue(GET_VY_FROM_OP(opcode)));
+    
     return;
 }
 
 // Loads Vx to Vx |= Vy
 void Opcodes::opLoadORVxVy(unsigned short opcode, Chip8& chip8) {
-    chip8.setRegisterValue((opcode & 0xF00) >> 8, 
-                            chip8.getRegisterValue((opcode & 0xF00) >> 8) | chip8.getRegisterValue((opcode & 0xF0) >> 4));
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), 
+                            chip8.getRegisterValue(GET_VX_FROM_OP(opcode)) | chip8.getRegisterValue(GET_VY_FROM_OP(opcode)));
+    
     return;
 }
 
 // Loads Vx to Vx &= Vy
 void Opcodes::opLoadANDVxVy(unsigned short opcode, Chip8& chip8) {
-    chip8.setRegisterValue((opcode & 0xF00) >> 8, 
-                            chip8.getRegisterValue((opcode & 0xF00) >> 8) & chip8.getRegisterValue((opcode & 0xF0) >> 4));
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), 
+                            chip8.getRegisterValue(GET_VX_FROM_OP(opcode)) & chip8.getRegisterValue(GET_VY_FROM_OP(opcode)));
+
     return;
 }
 
 // Loads Vx to Vx ^= Vy
 void Opcodes::opLoadXORVxVy(unsigned short opcode, Chip8&chip8) {
-    chip8.setRegisterValue((opcode & 0xF00) >> 8, 
-                            chip8.getRegisterValue((opcode & 0xF00) >> 8) ^ chip8.getRegisterValue((opcode & 0xF0) >> 4));
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), 
+                            chip8.getRegisterValue(GET_VX_FROM_OP(opcode)) ^ chip8.getRegisterValue(GET_VY_FROM_OP(opcode)));
     return;
 }
 
-// Loads Vx to Vx += Vy. Vf = 1 if an overflow is detected
+// Loads Vx to Vx += Vy. Vf = 1 if an overflow is detected, 0 otherwise
 // TODO: Ignore addition when overflow? or not?
 void Opcodes::opLoadADDVxVy(unsigned short opcode, Chip8& chip8) {
     // Not the most memory efficient if using continually on embedded system
-    size_t registerValue = chip8.getRegisterValue((opcode & 0xF00) >> 8) + chip8.getRegisterValue((opcode & 0xF0) >> 4);
-    
-    (registerValue > 255) ? chip8.setOverflowRegister(OVERFLOW_OCCURED) : chip8.setOverflowRegister(OVERFLOW_DID_NOT_OCCUR);
-    chip8.setRegisterValue((opcode & 0xF00) >> 8, registerValue);
+    unsigned char vxValue = chip8.getRegisterValue(GET_VX_FROM_OP(opcode));
+    unsigned char vyValue = chip8.getRegisterValue(GET_VY_FROM_OP(opcode));
+    int registerValue = static_cast<int>(vxValue) + static_cast<int>(vyValue);
+
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), registerValue);
+
+    (vyValue > vxValue) ? chip8.setOverflowRegister(OVERFLOW_OCCURED) : chip8.setOverflowRegister(OVERFLOW_DID_NOT_OCCUR);
     
     return;
 }
 
+// Loads Vx to Vx -= Vy. Vf = 0 if an underflow is detected, 1 otherwise
 void Opcodes::opLoadSUBVxVy(unsigned short opcode, Chip8& chip8) {
+    // Not the most memory efficient if using continually on embedded system
+    unsigned char vxValue = chip8.getRegisterValue(GET_VX_FROM_OP(opcode));
+    unsigned char vyValue = chip8.getRegisterValue(GET_VY_FROM_OP(opcode));
+    int registerValue = static_cast<int>(vxValue) - static_cast<int>(vyValue);
+
+    // Kind of weird how negative values are interpreted as unsigned chars in Chip 8
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), static_cast<unsigned char>(registerValue));
+
+    (vxValue < vyValue) ? chip8.setOverflowRegister(UNDERFLOW_OCCURED) : chip8.setOverflowRegister(UNDERFLOW_DID_NOT_OCCUR);
+
     return;
 }
 
+// Shifts Vx right by one. Stores the least significant bit prior to shift in Vf
 void Opcodes::opLoadShiftRightVx(unsigned short opcode, Chip8& chip8) {
+    unsigned char registerValue = chip8.getRegisterValue(GET_VX_FROM_OP(opcode));
+
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), registerValue >> 1);
+    chip8.setOverflowRegister(registerValue & 0x1); // Store least significant bit
+
     return;
 }
 
-void Opcodes::opLoadVxEquVyMinusVx(unsigned short opcode, Chip8& chip8) {
+// Loads Vx to Vy - Vx. Vf = 0 if an underflow is detected, 1 otherwise
+void Opcodes::opLoadSUBVyVx(unsigned short opcode, Chip8& chip8) {
+    // Not the most memory efficient if using continually on embedded system
+    unsigned char vxValue = chip8.getRegisterValue(GET_VX_FROM_OP(opcode));
+    unsigned char vyValue = chip8.getRegisterValue(GET_VY_FROM_OP(opcode));
+    char registerValue = vyValue - vxValue;
+
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), registerValue);
+
+    (vyValue < vxValue) ? chip8.setOverflowRegister(UNDERFLOW_OCCURED) : chip8.setOverflowRegister(UNDERFLOW_DID_NOT_OCCUR);
+
     return;
 }
 
+// Shifts Vx left by one. Stores the most significant bit prior to shift in Vf
 void Opcodes::opLoadShiftLeftVx(unsigned short opcode, Chip8& chip8) {
+    unsigned char registerValue = chip8.getRegisterValue(GET_VX_FROM_OP(opcode));
+
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), static_cast<char>(registerValue << 1));
+    chip8.setOverflowRegister((registerValue & 0x80) >> 7); // Store most significant bit
+    
     return;
 }
 
+// Skips next instruction if Vx != Vy
 void Opcodes::opSNEVxVy(unsigned short opcode, Chip8& chip8) {
+    if(chip8.getRegisterValue(GET_VX_FROM_OP(opcode)) != chip8.getRegisterValue(GET_VY_FROM_OP(opcode)))
+        chip8.addProgramCounter(2);
+
     return;
 }
 
@@ -254,6 +315,13 @@ void Opcodes::opStoreAllRegisterValues(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
+// Load all registers with memory starting at I
 void Opcodes::opLoadAllRegisterValues(unsigned short opcode, Chip8& chip8) {
+    unsigned char maxRegister = (opcode & 0x0F00) >> 8;
+
+    for (unsigned char index = 0; index <= maxRegister; ++index) {
+        chip8.setRegisterValue(index, chip8.memory[chip8.I + index]);
+    }
+
     return;
 }

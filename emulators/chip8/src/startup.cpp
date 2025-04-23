@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
         chip8interpreter.printDebug();
         chip8interpreter.readNextInstruction();
         chip8display.renderDisplay(chip8interpreter.getPixels());
-        SDL_Delay(100);
+        //SDL_Delay(100);
     };
 
     return 0;
