@@ -44,8 +44,8 @@
 #define OP_LOAD_I_VX_MASK                   0xF01E
 #define OP_LOAD_I_SPRITE_ADDR_MASK          0xF029
 #define OP_BCD_VX_MASK                      0xF033
-#define OP_STORE_ALL_REGISTER_VALUES_MASK   0xF055
-#define OP_LOAD_ALL_REGISTER_VALUES_MASK    0xF065
+#define OP_STORE_REGISTER_VALUES_MASK       0xF055
+#define OP_LOAD_REGISTER_VALUES_MASK        0xF065
 
 // Forward declaration used since I saw a cyclic reference in chip8.cpp
 class Chip8;
@@ -103,8 +103,8 @@ class Opcodes {
         static void opLoadIVx(unsigned short opcode, Chip8& chip8);
         static void opLoadISpriteAddr(unsigned short opcode, Chip8& chip8);
         static void opLoadBCDVx(unsigned short opcode, Chip8& chip8);
-        static void opStoreAllRegisterValues(unsigned short opcode, Chip8& chip8);
-        static void opLoadAllRegisterValues(unsigned short opcode, Chip8& chip8);
+        static void opStoreRegisterValues(unsigned short opcode, Chip8& chip8);
+        static void opLoadRegisterValues(unsigned short opcode, Chip8& chip8);
 
         // Constant at compile time since it won't change
         constexpr static std::array<OpcodeMapping, 34> opcodeLookup {{
@@ -134,15 +134,15 @@ class Opcodes {
             {0XF000, OP_DRAW_SPRITE_MASK, &Opcodes::opDrawSprite},
             {0xF0FF, OP_SE_KEY_MASK, &Opcodes::opSEKey},
             {0xF0FF, OP_SNE_KEY_MASK, &Opcodes::opSNEKey},
-            {0xF00F, OP_LOAD_VX_DELAY_MASK, &Opcodes::opLoadVxDelay},
-            {0xF00F, OP_LOAD_VX_KEY_MASK, &Opcodes::opLoadVxKey},
+            {0xF0FF, OP_LOAD_VX_DELAY_MASK, &Opcodes::opLoadVxDelay},
+            {0xF0FF, OP_LOAD_VX_KEY_MASK, &Opcodes::opLoadVxKey},
             {0xF0FF, OP_LOAD_DELAY_TO_VX_MASK, &Opcodes::opLoadDelayToVx},
             {0xF0FF, OP_LOAD_SOUND_TO_VX_MASK, &Opcodes::opLoadSoundToVx},
             {0xF0FF, OP_LOAD_I_VX_MASK, &Opcodes::opLoadIVx},
             {0xF0FF, OP_LOAD_I_SPRITE_ADDR_MASK, &Opcodes::opLoadISpriteAddr},
             {0xF0FF, OP_BCD_VX_MASK, &Opcodes::opLoadBCDVx},
-            {0xF0FF, OP_STORE_ALL_REGISTER_VALUES_MASK, &Opcodes::opStoreAllRegisterValues},
-            {0xF0FF, OP_LOAD_ALL_REGISTER_VALUES_MASK, &Opcodes::opLoadAllRegisterValues}
+            {0xF0FF, OP_STORE_REGISTER_VALUES_MASK, &Opcodes::opStoreRegisterValues},
+            {0xF0FF, OP_LOAD_REGISTER_VALUES_MASK, &Opcodes::opLoadRegisterValues}
         }};
 
 };

@@ -113,7 +113,7 @@ class Chip8 {
             return 0;
         };
 
-        const char getRegisterValue(unsigned char registerNumber) const {
+        const unsigned char getRegisterValue(unsigned char registerNumber) const {
             return (REGISTER_BOUNDARY_DETECT(registerNumber) ? v[registerNumber] : -1);
         };
 
