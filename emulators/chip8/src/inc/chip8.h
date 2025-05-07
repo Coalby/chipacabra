@@ -13,6 +13,7 @@
 #define ROM_MEM_START       CHIP_8_RESERVED_MEM
 #define REGISTER_COUNT      0x10
 #define STACK_SIZE          12
+#define KEY_SIZE            0x10
 
 #define OVERFLOW_OCCURED        0x01
 #define OVERFLOW_DID_NOT_OCCUR  0x00
@@ -24,6 +25,7 @@
 #define ADDR_BOUNDARY_DETECT(addr)          (addr >= 0 && addr < CHIP_8_MEM_SIZE)
 #define REGISTER_BOUNDARY_DETECT(register)  (register >= 0 && register < REGISTER_COUNT)
 #define MEMORY_SIZE_DETECT(size)            (size <= 0 && size > ROM_MEM_SIZE)
+#define KEY_BOUNDARY_CHECK(key)             (key <= 0 && key > KEY_SIZE)
 
 const unsigned char FontSet[] {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -141,6 +143,15 @@ class Chip8 {
             return 0;
         };
 
+        char setKey(unsigned short key) {
+            if(!KEY_BOUNDARY_CHECK(key))
+                return -1;
+
+            key_pressed = key;
+            
+            return 0;
+        };
+
         const pixels::PixelBuffer& getPixels() const {
             return pixels;
         };
@@ -160,6 +171,8 @@ class Chip8 {
 
         unsigned short delay_timer {};
         unsigned short sound_timer {};
+
+        unsigned char key_pressed {};
 
         pixels::PixelBuffer pixels {};
 };

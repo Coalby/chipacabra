@@ -1,3 +1,6 @@
 [submodule "third_party/chip8/chip8-test-suite"]
 	path = third_party/chip8/chip8-test-suite
 	url = https://github.com/Timendus/chip8-test-suite.git
+[submodule "chip8-roms"]
+	path = third_party/chip8/chip8-roms
+	url = https://github.com/kripod/chip8-roms.git

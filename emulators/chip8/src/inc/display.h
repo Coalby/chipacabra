@@ -82,7 +82,14 @@ class Display {
             SDL_RenderPresent(emulatorRenderer);
 
             return;
-        }
+        };
+
+        char keyPress(const char key) const {
+            const uint8* keys_press {};
+
+            keys_pressed = SDL_GetKeyboardState(NULL);
+            return keys_pressed[keys[key]]; // Maps 0-15 to SDL scancodes
+        };
 
         char closeDisplayCheck() {
             while (SDL_PollEvent(&event)) {

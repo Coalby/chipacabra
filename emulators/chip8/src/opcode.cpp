@@ -270,15 +270,26 @@ void Opcodes::opDrawSprite(unsigned short opcode, Chip8& chip8) {
     }
 }
 
+// Skips next instruction if key in Vx is pressed
 void Opcodes::opSEKey(unsigned short opcode, Chip8& chip8) {
+    if((chip8.v[GET_VX_FROM_OP(opcode)] & 0xF) == chip8.key_pressed)
+        chip8.addProgramCounter(2);
+
     return;
 }
 
+// Skips next instruction if key in Vx is not pressed
 void Opcodes::opSNEKey(unsigned short opcode, Chip8& chip8) {
+    if((chip8.v[GET_VX_FROM_OP(opcode)] & 0xF) != chip8.key_pressed)
+        chip8.addProgramCounter(2);
+    
     return;
 }
 
+// Loads Vx to value of delay timer
 void Opcodes::opLoadVxDelay(unsigned short opcode, Chip8& chip8) {
+    chip8.setRegisterValue(GET_VX_FROM_OP(opcode), chip8.delay_timer);
+    
     return;
 }
 
@@ -286,11 +297,15 @@ void Opcodes::opLoadVxKey(unsigned short opcode, Chip8& chip8) {
     return;
 }
 
+// Sets delay timer to Vx
 void Opcodes::opLoadDelayToVx(unsigned short opcode, Chip8& chip8) {
+    chip8.delay_timer = chip8.v[GET_VX_FROM_OP(opcode)];
     return;
 }
 
+// Set sound timer to Vx
 void Opcodes::opLoadSoundToVx(unsigned short opcode, Chip8& chip8) {
+    chip8.sound_timer = chip8.v[GET_VX_FROM_OP(opcode)];
     return;
 }
 
